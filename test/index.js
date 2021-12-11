@@ -3,12 +3,35 @@
 
 
 // codeGenerator()
+/**
+ * 生成多个字段名 字段
+ * - 自定义哪个字段需要特殊处理
+ * 按照字段名循环生成 处理-
+ * - 指定哪个字段需要配置
+ */
+
 
 /**
  * 代码生成器
  * 1. 传入模板
  * 1.1 写好替换的字段, 例如${aaa}
  * 2. 通过 写好的配置, 然后通过写好的配置和模板文件生成目标文件
+ * ${all} : 全部配置字段
+ * ${select}: 选择需要配置的字段(只输出字段)
+ * ${template.all}: 使用模板生成字段
+ * ${template.select}: 选择需要配置的字段, 按照配置好的模板(或方法)生成
+ * ${template.[name]}: 自定义的代码片段(不需要按照字段生成)
+ * {
+ * 	all: [field1, field2, field3... ],
+ * 	select: [field1],
+ * 	template:{
+ * 		_config:{
+ * 			all: [field1, field2, field3... ],
+ * 			select: [field1],
+ * 		},
+ * 		[name1]: function(item){ return `代码片段${item}代码片段`},
+ * 	}
+ * }
  */
 
 const config = {
@@ -50,7 +73,7 @@ const config = {
 				functionKey: 'modal',
 				format: '\n\t\t\t\t\t',
 			},
-			fieldConfig:{
+			fieldConfig: {
 				fields: ['name1', 'name2', 'name3', 'name3']
 			}
 		}
