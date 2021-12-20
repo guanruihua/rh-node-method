@@ -9,183 +9,109 @@
  * 按照字段名循环生成 处理-
  * - 指定哪个字段需要配置
  */
-
-
-/**
- * 代码生成器
- * 1. 传入模板
- * 1.1 写好替换的字段, 例如${aaa}
- * 2. 通过 写好的配置, 然后通过写好的配置和模板文件生成目标文件
- * ${all} : 全部配置字段
- * ${select}: 选择需要配置的字段(只输出字段)
- * ${template.all}: 使用模板生成字段
- * ${template.select}: 选择需要配置的字段, 按照配置好的模板(或方法)生成
- * ${template.[name]}: 自定义的代码片段(不需要按照字段生成)
- * {
- * 	all: [field1, field2, field3... ],
- * 	select: [field1],
- * 	template:{
- * 		_config:{
- * 			all: [field1, field2, field3... ],
- * 			select: [field1],
- * 		},
- * 		[name1]: function(item){ return `代码片段${item}代码片段`},
- * 	}
- * }
- */
-
 const config = {
-	defaultConfig: {
-		fields: ['name1', 'name2', 'name3'],
-		options: {
-			names: [
-				{ value: 'aa', label: 'aaa' },
-				{ value: 'bb', label: 'bbb' },
-			]
-		},
+	global: {
+		'fields': ['name1', 'name2', 'name3'],
+		'names': [
+			{ value: 'aa', label: 'aaa' },
+			{ value: 'bb', label: 'bbb' },
+		],
+		'services': [
+			{ name: 'aa', url: '/a/b', method: 'get' },
+			{ name: 'aab', url: '/a/b/c', method: 'post' },
+			{ name: 'aac', url: '/a/b/d', method: 'delete' },
+			{ name: 'aad', url: '/a/b/e', method: 'get' },
+		]
 	},
 	rules: {
 		// 需要修改的文件映射 对应的修改规则
+		// key | format | action | dataIndex (global数据的key, 给action传入数据)
+		// action
+		'index.js': {
+			'fields': ['name1', 'name2', 'name3', 'name4'],
+			'fields2|,\n': ['name1', 'name2', 'name3|123,\n', 'name4'],
+			'fields3': undefined,
+			'fields33|, |name2': undefined,
+			'fields333|\n |name2': ['name1', 'name2||select|names', 'name3'],
+			'fields4': ['name1|, |name', 'name2', 'name3', 'name4'],
+			'fields5|, \n|name': ['name1||name1', 'name2', 'name4'],
+		},
 		'Filter.js': {
-			fieldsConfig: {
-				fields: ['name1', 'name2', 'name3|select|names|\n\t\t\t\t\t'],
-				functionKey: 'filter',
-				// keepParentheses: false,// 是否保留{}括号, 默认false
-				format: '\n\n\t\t\t'
-			},
-			fieldConfig: {
-
-			}
+			'fields||finput': ['name1||fselect|names', 'name2', 'name3'],
 		},
 		'service.js': {
-			fieldsConfig: {
-				fields: [
-					'query|/apiProduct/productAttrSearch/findPage|get',
-					'query2|/apiProduct/productAttrSearch/findPage2|post',
-					'query3|/apiProduct/productAttrSearch/findPage3|delete',
-				],
-				functionKey: 'service'
-			},
-		},
-		'Modal.js': {
-			fieldsConfig: {
-				fields: ['name1', 'name2|inputNumber', 'name3|select|names|\n\t\t\t\t\t'],
-				functionKey: 'modal',
-				format: '\n\t\t\t\t\t',
-			},
-			fieldConfig: {
-				fields: ['name1', 'name2', 'name3', 'name3']
-			}
+			'fields': ['||service|services'],
 		}
 	},
-	functions: {
-		modal: function (item, defaultConfig = {}) {
-			const [name, type, optionsKey, format = '\n'] = item
-			const { options = {} } = defaultConfig
-			if (type === 'select') {
-				return `<Select
-            name='${name}'
-            label={locales.${name}}
-            placeholder={locales.${name}}
-            initialValue={${name}||''}
-            rules={validates.${name}}
-            style={{ width: '100%' }}
-          >
-					${options[optionsKey] && options[optionsKey].length > 0 ? options[optionsKey]
-						.map(({ value, label }) => {
-							return `<Select.Option key={${value}} value={${value}}>${label}</Select.Option>`
-						}).join(format) : ''}
-          </Select>`
-			}
-			if (type === 'inputNumber') {
-				return `<InputNumber
-						min={1}
-						max={999999}
-						name='orders'
-						rules={validates.${name}}
-						label={locales.${name}}
-						disabled={modalFormItemFlag['${name}']}
-						initialValue={${name} || ''}
-					/>`
-			}
+	actions: {
+		inputNumber: function (name) {
+			return `<InputNumber
+      min={1}
+      max={999999}
+      name='orders'
+      rules={validates.${name}}
+      label={locales.${name}}
+      disabled={modalFormItemFlag['${name}']}
+      initialValue={${name} || ''}
+     />`
+		},
+		input: function (name, payload) {
 			return `<Input
-						prefixCls='ant-input'
-						name='${name}'
-						rules={validates.${name}}
-						label={locales.${name}}
-						disabled={modalFormItemFlag['${name}']}
-						initialValue={${name} || ''}
-					/>`
+      	prefixCls='ant-input'
+      	name='${name}'
+      	rules={validates.${name}}
+      	label={locales.${name}}
+      	disabled={modalFormItemFlag['${name}']}
+      	initialValue={${name} || ''}
+     	/>`
 		},
-		service: function (item) {
-			const [name, url, method] = item;
+		select: function (name, payload) {
 			return (
-				`export async function ${name}(params) {
-	return request('${url}', { method: '${method}', data: params });
-}`)
+				`<Select
+					name='${name}'
+					label={locales.${name}}
+					placeholder={locales.${name}}
+					initialValue={${name}||''}
+					rules={validates.${name}}
+					style={{ width: '100%' }}
+				>
+				${payload.map(({ value, label }, index) => {
+					return `\t<Select.Option key={'${value}'} value={'${value}'}>${label}</Select.Option>${index < payload.length - 1 ? '\n' : ''}`
+				}).join('')}
+				</Select > `
+			)
 		},
-		filter: function (item = [], defaultConfig = {}) {
-			const [name, type = 'input', optionsKey = '', format = '\n'] = item
-			const { options } = defaultConfig
-			if (type === 'select') {
-				return `<ARSearchItem id='${name}' label={locales.${name}} >
-				<Select name='${name}' placeholder={locales.${name}} style={{ width: '170px' }}>
-					${options[optionsKey] && options[optionsKey].length > 0 ? options[optionsKey]
-						.map(({ value, label }) => {
-							return `<Select.Option value='${value}'>${label}<Select.Option>`
-						}).join(format) : ''}
-				</Select>
-			</ARSearchItem>`
-			}
+		service: function (item, payload = []) {
+			return `${payload.map(({ name, url, method }) => (`export async function ${name}(params) {
+	return request('${url}', { method: '${method}', data: params });
+}`
+			)).join('\n\n')}`
+		},
+		finput: function (name, payload) {
 			return `<ARSearchItem id='${name}' label={locales.${name}} >
-				<Input name='${name}' placeholder={locales.${name}} style={{ width: '170px' }}/>
-			</ARSearchItem>`
-		}
+    	<Input name='${name}' placeholder={locales.${name}} style={{ width: '170px' }}/>
+   	</ARSearchItem>`
+		},
+		fselect: function (name, payload) {
+			return `<ARSearchItem id='${name}' label={locales.${name}} >
+    <Select name='${name}' placeholder={locales.${name}} style={{ width: '170px' }}>
+     ${payload.map(({ value, label }) => `<Select.Option key='${value}' value='${value}'>${label}</Select.Option>`
+		 ).join('\n')}
+    </Select>
+   </ARSearchItem>\n`
+		},
+		name: function (item, payload) {
+			return `${item} _000`
+		},
+		name1: function (item, payload) {
+			return `${item} _111`
+		},
+		name2: function (item, payload) {
+			return `${item} _222`
+		},
 	}
 }
 
-
-
-
-// field 关键词处理
-function handleField(db, key, fieldsConfig, defaultConfig, functions) {
-	const {
-		functionKey = '', keepParentheses = false, format = '\n',
-		fields = defaultConfig.fields || {},
-	} = fieldsConfig
-
-	let fieldsReplaceParams = fields;
-	!keepParentheses && (db[key].data = String(db[key].data).replace('{/* ${field} */}', '/* ${fields} */'))
-
-	if (functions[functionKey]) {
-		fieldsReplaceParams = fieldsReplaceParams.map(item => {
-			return functions[functionKey](String(item).split('|'), defaultConfig)
-		})
-	}
-
-
-	db[key].data = String(db[key].data).replace('/* ${field} */', fieldsReplaceParams.join(format))
-}
-
-// fields 关键词处理
-function handleFields(db, key, fieldsConfig, defaultConfig, functions) {
-	const {
-		functionKey = '', keepParentheses = false, format = '\n',
-		fields = defaultConfig.fields || {},
-	} = fieldsConfig
-
-	let fieldsReplaceParams = fields;
-	!keepParentheses && (db[key].data = String(db[key].data).replace('{/* ${fields} */}', '/* ${fields} */'))
-
-	if (functions[functionKey]) {
-		fieldsReplaceParams = fieldsReplaceParams.map(item => {
-			return functions[functionKey](String(item).split('|'), defaultConfig)
-		})
-	}
-
-
-	db[key].data = String(db[key].data).replace('/* ${fields} */', fieldsReplaceParams.join(format))
-}
 
 async function run(entry, output, config) {
 	let fs = require('fs')
@@ -195,48 +121,73 @@ async function run(entry, output, config) {
 		return;
 	}
 	let files = fs.readdirSync(entry)
-	let db = {}
+	const { global = {}, rules = {}, actions = {} } = config
+	let configCache = {}
 
 	files.forEach((fileName) => {
-		db[fileName] = {
-			data: fs.readFileSync(`${entry}/${fileName}`),
-			entry,
+		// 添加默认添加规则 fields
+		if (rules[fileName] && !rules[fileName].fields) {
+			rules[fileName].fields = undefined;
+		}
+		configCache[fileName] = {
+			data: fs.readFileSync(`${entry}/${fileName}`) || '',
+			rules: rules[fileName] || { fields: undefined }
 		}
 	})
 
 	// 处理文档数据
+	for (let fileName in configCache) {
+		const operations = configCache[fileName] || {}
+		let result = operations.data;
 
-	const {
-		defaultConfig = {},
-		rules = {}, functions = {}
-	} = config
-	for (let key in db) {
-		if (rules[key]) {
+		for (let operationKey in operations.rules) {
 
-			const {
-				fieldsConfig = {},
-			} = rules[key] || {}
+			let operationValueTemp = operations.rules[operationKey] || global.fields || [];
+			const [key = '', format = ', ', keyAction = '', dataIndex = ''] = operationKey.split('|')
+			const replaceParam = "/* ${" + key + "} */";
+			let operationValue = [];
+			let useAction = '';
 
-			handleFields(db, key, fieldsConfig, defaultConfig, functions)
+			// 整理数据结构
+			if (keyAction !== '' && actions[keyAction]) {
+				useAction = actions[keyAction];
+			}
+
+			operationValueTemp = operationValueTemp.map((item, index) => {
+				let [ikey = '', iformat = '', action = '', iDataIndex = dataIndex] = item.split('|');
+
+				let itemUseAction = useAction || '';
+				action !== '' && actions[action] && (itemUseAction = actions[action])
+				iformat === '' && (iformat = format)
+				index === operationValueTemp.length - 1 && (iformat = '')
+
+				return {
+					value: ikey,
+					action: itemUseAction,
+					format: iformat,
+					dataIndex: iDataIndex
+				}
+			});
+
+			// 写入到对应文件数据
+			operationValue = operationValueTemp.map((item) => {
+				if (item.action && item.action !== '') {
+					let payload = item.dataIndex && global[item.dataIndex] || item.dataIndex || ''
+					return item.action(item.value, payload) + (item.format || '');
+				}
+				return item.value + (item.format || '');
+			})
 
 
-			// console.log(`${output}/${key}`);
-			if (key === 'Modal.js') console.log(db[key].data);
+			result = String(result).replace(`{${replaceParam}}`, operationValue.join(''))
+			result = String(result).replace(replaceParam, operationValue.join(''))
 		}
-		// fs.writeFileSync(`${output}/${key}`, db[key].data);
-		// console.log(`${output}/${key}`, db[key].data);
+
+		// 输出文件
+		fs.writeFileSync(`${output}/${fileName}`, result);
 	}
-
-
-	// console.log({ files, db })
-
-	// let files = fs.readFileSync('./temp/index.js.temp')
-	// console.log('files', files);
-	// fs.writeFileSync('./out/index.js', files)
-	// console.log({ entry, output });
-
 }
 
-const entryUrl = './temp'
-const outputUrl = './out'
-run(entryUrl, outputUrl, config)
+console.time('run')
+run('./temp', './out', config)
+console.timeEnd('run')

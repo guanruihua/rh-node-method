@@ -1,4 +1,4 @@
-import { Modal, Input, Form } from '../../../components'
+import { Modal, Input, Form } from 'components'
 import { InputNumber } from 'antd';
 import Validates from '../../../assets/APP-Validates'
 
@@ -39,32 +39,9 @@ const modal = ({ intl, locales, handleOk, editLocale, payload = {} }) => {
 					<Input prefixCls='ant-input' name='id' initialValue={id || ''} hidden />
 					<Input prefixCls='ant-input' name='pageFlag' initialValue={pageName || ''} hidden />
 					<Input prefixCls='ant-input' name='localeStr' initialValue={editLocale || 'en_US'} hidden />
-					<Input
-						prefixCls='ant-input'
-						name='code'
-						rules={validates.code}
-						label={locales.code}
-						disabled={modalFormItemFlag['code']}
-						initialValue={code || ''}
-					/>
-					<Input
-						prefixCls='ant-input'
-						name='name'
-						rules={validates.name}
-						label={locales.name}
-						disabled={modalFormItemFlag['name']}
-						initialValue={name && JSON.parse(name)[editLocale] || ''}
-					/>
-					<InputNumber
-						// prefixCls='ant-input'
-						min={1}
-						max={999999}
-						name='orders'
-						rules={validates.order}
-						label={locales.order}
-						disabled={modalFormItemFlag['order']}
-						initialValue={orders || ''}
-					/>
+					name1, name2, name3
+					
+					
 
 				</Form>
 			}

@@ -9,7 +9,7 @@ const Index = ({
 	downloadImportTemplateFn,
 	importFn,
 	languageEditCallBack,
-	...listProps, }) => {
+	...listProps }) => {
 	return (
 		<Table
 			{...listProps}
